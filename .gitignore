@@ -1,4 +1,7 @@
 # Byte-compiled / optimized / DLL files
+Celeb-DF-v2
+face_forensics_download_v4.py
+
 __pycache__/
 *.py[cod]
 *$py.class

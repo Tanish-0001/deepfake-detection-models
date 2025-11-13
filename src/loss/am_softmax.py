@@ -65,7 +65,7 @@ class AMSoftmaxLoss(nn.Module):
             phi_theta = cos_theta - self.m
         else:
             sine = torch.sqrt(1.0 - torch.pow(cos_theta, 2))
-            phi_theta = cos_theta * self.cos_m - sine * self.sin_m #cos(theta+m)
+            phi_theta = cos_theta * self.cos_m - sine * self.sin_m  # cos(theta+m)
             phi_theta = torch.where(cos_theta > self.th, phi_theta, cos_theta - self.sin_m * self.m)
 
         index = torch.zeros_like(cos_theta, dtype=torch.uint8)

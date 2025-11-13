@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 """
-Channel Attention and Spaitial Attention from    
+Channel Attention and Spatial Attention from    
 Woo, S., Park, J., Lee, J.Y., & Kweon, I. CBAM: Convolutional Block Attention Module. ECCV2018.
 """
 

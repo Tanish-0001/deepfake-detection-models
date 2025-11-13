@@ -5,7 +5,6 @@ Author: Andreas Rössler
 import os
 import argparse
 
-
 import torch
 # import pretrainedmodels
 import torch.nn as nn
@@ -14,10 +13,6 @@ import torch.nn.functional as F
 import math
 import torchvision
 
-# import math
-# import torch
-# import torch.nn as nn
-# import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo
 from torch.nn import init
 
@@ -31,12 +26,14 @@ pretrained_settings = {
             'mean': [0.5, 0.5, 0.5],
             'std': [0.5, 0.5, 0.5],
             'num_classes': 1000,
-            'scale': 0.8975  # The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
+            'scale': 0.8975
+            # The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
         }
     }
 }
 
-PRETAINED_WEIGHT_PATH = 'networks/xception-b5690688.pth'
+PRETRAINED_WEIGHT_PATH = os.path.join(os.path.dirname(__file__), 'xception-b5690688.pth')
+
 
 class SeparableConv2d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=1, stride=1, padding=0, dilation=1, bias=False):
@@ -75,7 +72,7 @@ class Block(nn.Module):
             rep.append(nn.BatchNorm2d(out_filters))
             filters = out_filters
 
-        for i in range(reps-1):
+        for i in range(reps - 1):
             rep.append(self.relu)
             rep.append(SeparableConv2d(filters, filters,
                                        3, stride=1, padding=1, bias=False))
@@ -185,6 +182,7 @@ class Xception(nn.Module):
         #         m.weight.data.fill_(1)
         #         m.bias.data.zero_()
         # #-----------------------------
+
     def fea_part1_0(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
@@ -193,7 +191,6 @@ class Xception(nn.Module):
         return x
 
     def fea_part1_1(self, x):
-
         x = self.conv2(x)
         x = self.bn2(x)
         x = self.relu(x)
@@ -315,7 +312,7 @@ class TransferModel(nn.Module):
                     model.fc = model.last_linear
                     del model.last_linear
                     state_dict = torch.load(
-                        PRETAINED_WEIGHT_PATH)
+                        PRETRAINED_WEIGHT_PATH, weights_only=True)
                     for name, weights in state_dict.items():
                         if 'pointwise' in name:
                             state_dict[name] = weights.unsqueeze(

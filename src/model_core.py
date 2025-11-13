@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from components.attention import ChannelAttention, SpatialAttention, DualCrossModalAttention
-from components.srm_conv import SRMConv2d_simple, SRMConv2d_Separate
-from networks.xception import TransferModel
+from .components.attention import ChannelAttention, SpatialAttention, DualCrossModalAttention
+from .components.srm_conv import SRMConv2d_simple, SRMConv2d_Separate
+from .networks.xception import TransferModel
 
 
 class SRMPixelAttention(nn.Module):
@@ -19,7 +19,7 @@ class SRMPixelAttention(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
         )
-        
+
         self.pa = SpatialAttention()
 
         for m in self.modules():
@@ -30,14 +30,14 @@ class SRMPixelAttention(nn.Module):
 
     def forward(self, x):
         x_srm = self.srm(x)
-        fea = self.conv(x_srm)        
+        fea = self.conv(x_srm)
         att_map = self.pa(fea)
-        
+
         return att_map
 
 
 class FeatureFusionModule(nn.Module):
-    def __init__(self, in_chan=2048*2, out_chan=2048, *args, **kwargs):
+    def __init__(self, in_chan=2048 * 2, out_chan=2048, *args, **kwargs):
         super(FeatureFusionModule, self).__init__()
         self.convblk = nn.Sequential(
             nn.Conv2d(in_chan, out_chan, 1, 1, 0, bias=False),
@@ -110,10 +110,8 @@ class Two_Stream_Net(nn.Module):
 
         x, y = self.dual_cma0(x, y)
 
-
-        x = self.xception_rgb.model.fea_part3(x)        
+        x = self.xception_rgb.model.fea_part3(x)
         y = self.xception_srm.model.fea_part3(y)
- 
 
         x, y = self.dual_cma1(x, y)
 
@@ -124,7 +122,6 @@ class Two_Stream_Net(nn.Module):
         y = self.xception_srm.model.fea_part5(y)
 
         fea = self.fusion(x, y)
-                
 
         return fea
 
@@ -133,16 +130,17 @@ class Two_Stream_Net(nn.Module):
         return out, fea
 
     def forward(self, x):
-        '''
+        """
         x: original rgb
-        '''
+        """
         out, fea = self.classifier(self.features(x))
 
         return out, fea, self.att_map
-    
+
+
 if __name__ == '__main__':
     model = Two_Stream_Net()
-    dummy = torch.rand((1,3,256,256))
+    dummy = torch.rand((1, 3, 256, 256))
     out = model(dummy)
-    print(model)
-    
+    print(out[0].shape, out[1].shape)
+    # print(model)
